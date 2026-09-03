@@ -27,35 +27,33 @@ class XlysAdapter(
 
     private val baseUrl = config.baseUrl.trimEnd('/')
 
-    /*** 搜索(临时: 验证码流程已注释,遇验证码页直接返回空,待调完后恢复) */
+    /*** 搜索带验证码处理 */
     override suspend fun search(kw: String, page: Int): List<SearchResult> = withContext(Dispatchers.IO) {
         val kEnc = java.net.URLEncoder.encode(kw.trim(), "UTF-8")
         var url = if (page <= 1) "$baseUrl/search/$kEnc" else "$baseUrl/search/$kEnc?page=$page"
         var html = try { engine.getText(url, referer = "$baseUrl/") } catch (e: Exception) { return@withContext emptyList() }
-        // ===== 验证码流程(暂注释,避免测试卡流程) =====
-        // repeat(3) {
-        //     if (!needsCaptcha(html)) {
-        //         val parsed = parseResults(html)
-        //         android.util.Log.d("XlysAdapter", "no-captcha, parsed=${parsed.size}, htmlLen=${html.length}")
-        //         return@withContext parsed
-        //     }
-        //     val req = buildCaptchaRequest(html, kEnc, page)
-        //     val answer = try { captchaFlow.ask(req) } catch (e: CaptchaCancelledException) { return@withContext emptyList() }
-        //     val submit = req.submitUrl.replace("{code}", answer)
-        //     html = try { engine.getText(submit, referer = url) } catch (e: Exception) {
-        //         android.util.Log.d("XlysAdapter", "submit failed: ${e.message}")
-        //         return@withContext emptyList()
-        //     }
-        //     android.util.Log.d("XlysAdapter", "after submit: len=${html.length} needsCaptcha=${needsCaptcha(html)} hasItem=${html.contains("xl-result-item")} hasName=${html.contains("xl-result-name")} hasCard=${html.contains("card-img")} snippet=${html.take(150).replace('\n',' ')}")
-        //     if (!needsCaptcha(html)) {
-        //         val parsed = parseResults(html)
-        //         android.util.Log.d("XlysAdapter", "submit ok parsed=${parsed.size}")
-        //         return@withContext parsed
-        //     }
-        // }
-        // parseResults(html)
-        if (needsCaptcha(html)) return@withContext emptyList()
-        android.util.Log.d("XlysAdapter", "no-captcha-path parsed=${parseResults(html).size}")
+        // ===== 验证码流程: 最多重试 3 次 =====
+        repeat(3) {
+            if (!needsCaptcha(html)) {
+                val parsed = parseResults(html)
+                android.util.Log.d("XlysAdapter", "no-captcha, parsed=${parsed.size}, htmlLen=${html.length}")
+                return@withContext parsed
+            }
+            val req = buildCaptchaRequest(html, kEnc, page)
+            val answer = try { captchaFlow.ask(req) } catch (e: CaptchaCancelledException) { return@withContext emptyList() }
+            // 同一会话提交 code(答案绑定当前 JSESSIONID)
+            val submit = req.submitUrl.replace("{code}", answer)
+            html = try { engine.getText(submit, referer = url) } catch (e: Exception) {
+                android.util.Log.d("XlysAdapter", "submit failed: ${e.message}")
+                return@withContext emptyList()
+            }
+            android.util.Log.d("XlysAdapter", "after submit: len=${html.length} needsCaptcha=${needsCaptcha(html)} hasItem=${html.contains("xl-result-item")} hasName=${html.contains("xl-result-name")} hasCard=${html.contains("card-img")} snippet=${html.take(150).replace('\n',' ')}")
+            if (!needsCaptcha(html)) {
+                val parsed = parseResults(html)
+                android.util.Log.d("XlysAdapter", "submit ok parsed=${parsed.size}")
+                return@withContext parsed
+            }
+        }
         parseResults(html)
     }
 
