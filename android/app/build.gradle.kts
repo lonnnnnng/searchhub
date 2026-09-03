@@ -11,8 +11,8 @@ android {
         applicationId = "com.searchhub.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.5.0"
+        versionCode = 9
+        versionName = "1.6.0"
     }
 
     val releaseStoreFile = providers.gradleProperty("searchhubReleaseStoreFile")
@@ -72,5 +72,6 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.jsoup:jsoup:1.18.3")
     implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 }
