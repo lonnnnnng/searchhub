@@ -166,28 +166,29 @@ private fun SearchHeader(
                 color = Color(0xFFF3F3F3),
                 shape = RoundedCornerShape(22.dp),
             ) {
-                Row(
-                    Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Spacer(Modifier.width(14.dp))
-                    Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFFBDBDBD), modifier = Modifier.size(18.dp))
-Box(Modifier.weight(1f).padding(start = 4.dp, end = 8.dp)) {
+                Box(Modifier.fillMaxSize().padding(horizontal = 14.dp)) {
                         androidx.compose.foundation.text.BasicTextField(
                             value = query,
                             onValueChange = onQueryChange,
+                            modifier = Modifier.fillMaxSize(),
+                            singleLine = true,
                             textStyle = MaterialTheme.typography.bodyMedium,
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                             keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
                             decorationBox = { inner ->
-                                if (query.isEmpty()) {
-                                    Text("输入片名或关键词", color = Color(0xFFBDBDBD), style = MaterialTheme.typography.bodyMedium)
+                                Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFFBDBDBD), modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(6.dp))
+                                    Box(Modifier.weight(1f)) {
+                                        if (query.isEmpty()) {
+                                            Text("输入片名或关键词", color = Color(0xFFBDBDBD), style = MaterialTheme.typography.bodyMedium)
+                                        }
+                                        inner()
+                                    }
                                 }
-                                inner()
                             },
                         )
                     }
-                }
             }
             // 绿色搜索按钮
             Surface(
