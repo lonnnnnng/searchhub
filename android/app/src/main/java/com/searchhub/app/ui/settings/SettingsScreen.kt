@@ -2,8 +2,11 @@ package com.searchhub.app.ui.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,6 +39,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -233,21 +240,23 @@ private fun SiteEditCard(
                         Text(site.id, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 9.sp)
                     }
                     if (site.enabled) {
-                        OutlinedTextField(
+                        Box(Modifier.fillMaxWidth().height(28.dp).background(Color.Transparent, RoundedCornerShape(6.dp)).border(0.5.dp, Color(0xFFE0E0E0), RoundedCornerShape(6.dp)).padding(horizontal = 6.dp)) {
+                        BasicTextField(
                             value = site.baseUrl,
                             onValueChange = onBaseUrl,
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth().height(34.dp),
-                            textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
-                            colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.Transparent, unfocusedContainerColor = Color(0xFFF7F7F7)),
+                            textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                            modifier = Modifier.fillMaxSize(),
                         )
                     }
+                    }
                 }
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(2.dp))
                 Switch(
                     checked = site.enabled,
                     onCheckedChange = onEnabled,
-                    modifier = Modifier.height(28.dp),
+                    modifier = Modifier.height(22.dp).width(34.dp),
+                    thumbContent = null,
                     colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = TitaGreen),
                 )
             }
