@@ -61,6 +61,29 @@ class SearchRepository(
         }.awaitAll().flatten()
     }
 
+    /**
+     * 流式搜索: 各站并发执行,每站完成后立即把结果与进度回调出去,无需等待全部完成。
+     * 快站的结果会先返回(先完成先回调),UI 可实时累积展示。
+     * @param onBatch 每站结果到达时回调 (results, doneCount)
+     */
+    suspend fun searchAllStream(kw: String, page: Int = 1, onBatch: (List<SearchResult>, Int) -> Unit) {
+        val total = adapters.size
+        if (total == 0) { onBatch(emptyList(), 0); return }
+        val done = java.util.concurrent.atomic.AtomicInteger(0)
+        coroutineScope {
+            adapters.map { a ->
+                async(Dispatchers.IO) {
+                    val r = try {
+                        withTimeoutOrNull(MAYBE) { a.search(kw, page) } ?: emptyList()
+                    } catch (e: Exception) {
+                        emptyList()
+                    }
+                    onBatch(r, done.incrementAndGet())
+                }
+            }.awaitAll()
+        }
+    }
+
     /** 解析某站详情(适配器定位由 detailUrl 推断哪站) */
     suspend fun detail(item: SearchResult): DetailInfo = withContext(Dispatchers.IO) {
         val a = adapters.firstOrNull { it.displayName == item.sourceSite }

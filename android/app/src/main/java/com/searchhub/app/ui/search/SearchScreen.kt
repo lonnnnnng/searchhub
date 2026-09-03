@@ -92,8 +92,25 @@ fun SearchScreen(
                 is SearchUiState.Idle -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text("输入关键字,从多个站点汇总结果", style = MaterialTheme.typography.bodyMedium)
                 }
-                is SearchUiState.Loading -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                is SearchUiState.Loading -> if (s.results.isEmpty()) {
+                    // 首站结果还没到: 转圈 + 进度
+                    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Spacer(Modifier.height(120.dp))
+                        CircularProgressIndicator()
+                        Spacer(Modifier.height(12.dp))
+                        Text("正在搜索 ${s.done}/${s.total} 站…", style = MaterialTheme.typography.bodyMedium)
+                    }
+                } else {
+                    // 流式: 已有部分结果, 实时展示 + 顶部提示剩余
+                    Column(Modifier.fillMaxSize()) {
+                        LoadingProgressBar(s.done, s.total)
+                        SiteTabs(
+                            results = s.results,
+                            onDetail = onOpenDetail,
+                            showMore = false,
+                            onLoadMore = {},
+                        )
+                    }
                 }
                 is SearchUiState.Error -> Box(Modifier.fillMaxSize().padding(32.dp), contentAlignment = Alignment.Center) {
                     Text(s.msg, color = MaterialTheme.colorScheme.error)
@@ -106,6 +123,21 @@ fun SearchScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun LoadingProgressBar(done: Int, total: Int) {
+    val fraction = if (total > 0) done.toFloat() / total else 0f
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text("加载中…", style = MaterialTheme.typography.labelSmall)
+            Text("${done}/${total} 站", style = MaterialTheme.typography.labelSmall)
+        }
+        androidx.compose.material3.LinearProgressIndicator(
+            progress = { fraction },
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 

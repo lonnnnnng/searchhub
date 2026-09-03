@@ -13,7 +13,12 @@ import kotlinx.coroutines.launch
 
 sealed interface SearchUiState {
     data object Idle : SearchUiState
-    data object Loading : SearchUiState
+    data class Loading(
+        val kw: String = "",
+        val results: List<SearchResult> = emptyList(),
+        val done: Int = 0,
+        val total: Int = 0,
+    ) : SearchUiState
     data class Loaded(
         val kw: String,
         val results: List<SearchResult>,
@@ -46,11 +51,32 @@ class SearchViewModel(
 
     fun search(kw: String, page: Int = 1) {
         query.value = kw
-        _ui.value = SearchUiState.Loading
+        val total = repository.activeCount()
+        _ui.value = SearchUiState.Loading(kw = kw, done = 0, total = total)
         viewModelScope.launch {
             try {
-                val results = repository.searchAll(kw, page).distinctBy { it.detailUrl }
-                _ui.value = SearchUiState.Loaded(kw, results, page)
+                val seen = hashMapOf<String, SearchResult>()
+                var doneCount = 0
+                repository.searchAllStream(kw, page) { batch, done ->
+                    doneCount = done
+                    batch.forEach { seen.putIfAbsent(it.detailUrl, it) }
+                    // 每站到达立即更新 UI(流式展示)
+                    if (doneCount >= total) {
+                        _ui.value = SearchUiState.Loaded(kw, seen.values.toList(), page)
+                    } else {
+                        _ui.value = SearchUiState.Loading(
+                            kw = kw,
+                            results = seen.values.toList(),
+                            done = doneCount,
+                            total = total,
+                        )
+                    }
+                }
+                // 兜底: 所有站都完成了但计数异常时确保转 Loaded
+                val cur = _ui.value
+                if (cur !is SearchUiState.Loaded) {
+                    _ui.value = SearchUiState.Loaded(kw, seen.values.toList(), page)
+                }
             } catch (e: Exception) {
                 _ui.value = SearchUiState.Error(e.message ?: "搜索失败")
             }
@@ -58,12 +84,31 @@ class SearchViewModel(
     }
 
     fun loadMore(page: Int, kw: String) {
-        _ui.value = SearchUiState.Loading
+        val total = repository.activeCount()
+        val cur = (_ui.value as? SearchUiState.Loaded)?.results ?: emptyList()
+        _ui.value = SearchUiState.Loading(kw = kw, results = cur, done = 0, total = total)
         viewModelScope.launch {
             try {
-                val more = repository.searchAll(kw, page).distinctBy { it.detailUrl }
-                val cur = (_ui.value as? SearchUiState.Loaded)?.results ?: emptyList()
-                _ui.value = SearchUiState.Loaded(kw, cur + more, page)
+                val seen = cur.associateBy { it.detailUrl }.toMutableMap()
+                var doneCount = 0
+                repository.searchAllStream(kw, page) { batch, done ->
+                    doneCount = done
+                    batch.forEach { seen.putIfAbsent(it.detailUrl, it) }
+                    if (doneCount >= total) {
+                        _ui.value = SearchUiState.Loaded(kw, seen.values.toList(), page)
+                    } else {
+                        _ui.value = SearchUiState.Loading(
+                            kw = kw,
+                            results = seen.values.toList(),
+                            done = doneCount,
+                            total = total,
+                        )
+                    }
+                }
+                val st = _ui.value
+                if (st !is SearchUiState.Loaded) {
+                    _ui.value = SearchUiState.Loaded(kw, seen.values.toList(), page)
+                }
             } catch (e: Exception) {
                 _ui.value = SearchUiState.Error(e.message ?: "加载更多失败")
             }
