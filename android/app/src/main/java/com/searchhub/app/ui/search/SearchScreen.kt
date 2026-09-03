@@ -1,6 +1,7 @@
 package com.searchhub.app.ui.search
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,8 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -28,10 +31,6 @@ import androidx.compose.material.icons.filled.LocalMovies
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -40,7 +39,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
@@ -63,10 +61,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.searchhub.app.model.SearchResult
 import com.searchhub.app.ui.AppViewModel
+
+// 参考"追剧"清爽绿白风
+private val TitaGreen = Color(0xFF1E9C5A)
+private val TitaGray = Color(0xFF949494)
+private val Line = Color(0xFFF0F0F0)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -148,50 +152,55 @@ private fun SearchHeader(
     onQueryChange: (String) -> Unit,
     onSubmit: () -> Unit,
 ) {
-    Surface(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        color = MaterialTheme.colorScheme.surface,
-        shape = MaterialTheme.shapes.large,
-        tonalElevation = 2.dp,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("多站点检索", style = MaterialTheme.typography.titleMedium)
-                    Text("一次搜索，汇总公开索引", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.small) {
-                    Text("$activeSiteCount 个站点", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp))
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        Spacer(Modifier.height(6.dp))
+        Text("多站点检索", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(2.dp))
+        Text("一次搜索，汇总公开索引 · $activeSiteCount 个站点", style = MaterialTheme.typography.bodySmall, color = TitaGray)
+        Spacer(Modifier.height(14.dp))
+        // 胶囊搜索框: 浅灰圆角 + 图标 + 搜索按钮
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Surface(
+                modifier = Modifier.weight(1f).height(44.dp),
+                color = Color(0xFFF3F3F3),
+                shape = RoundedCornerShape(22.dp),
+            ) {
+                Row(
+                    Modifier.fillMaxSize().clickable { /* 聚焦交给内部 OutlinedTextField */ },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Spacer(Modifier.width(14.dp))
+                    Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFFBDBDBD), modifier = Modifier.size(18.dp))
+                    Box(Modifier.weight(1f).padding(start = 4.dp, end = 8.dp)) {
+                        androidx.compose.foundation.text.BasicTextField(
+                            value = query,
+                            onValueChange = onQueryChange,
+                            singleLine = true,
+                            textStyle = MaterialTheme.typography.bodyMedium,
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                            keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
+                            decorationBox = { inner ->
+                                if (query.isEmpty()) {
+                                    Text("输入片名或关键词", color = Color(0xFFBDBDBD), style = MaterialTheme.typography.bodyMedium)
+                                }
+                                inner()
+                            },
+                        )
+                    }
                 }
             }
-            Spacer(Modifier.height(12.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            // 绿色搜索按钮
+            Surface(
+                modifier = Modifier.size(width = 44.dp, height = 44.dp).clickable(enabled = query.isNotBlank(), onClick = onSubmit),
+                color = if (query.isNotBlank()) TitaGreen else Color(0xFFCCCCCC),
+                shape = RoundedCornerShape(22.dp),
             ) {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = onQueryChange,
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("输入片名或关键词") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                    singleLine = true,
-                    shape = MaterialTheme.shapes.medium,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                    keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
-                )
-                Button(
-                    onClick = onSubmit,
-                    enabled = query.isNotBlank(),
-                    modifier = Modifier.height(56.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    contentPadding = ButtonDefaults.ContentPadding,
-                ) {
-                    Icon(Icons.Default.Search, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("搜索")
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.Search, contentDescription = "搜索", tint = Color.White, modifier = Modifier.size(20.dp))
                 }
             }
         }
@@ -283,12 +292,31 @@ private fun SiteTabs(
     var selected by remember(sites) { mutableIntStateOf(0) }
     if (selected >= sites.size) selected = 0
     Column(Modifier.fillMaxSize()) {
-        ScrollableTabRow(selectedTabIndex = selected, edgePadding = 16.dp, containerColor = Color.Transparent) {
-            sites.forEachIndexed { index, name ->
-                val count = if (index == 0) results.size else bySite[name]?.size ?: 0
-                Tab(selected = selected == index, onClick = { selected = index }, text = { Text(if (index == 0) "全部  $count" else "$name  $count") })
+        // zhuiju 风格: 横向滚动文字 tab, 选中绿色加粗 + 底部 2dp 绿条
+        Surface(Modifier.fillMaxWidth(), color = Color.White) {
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()).padding(horizontal = 12.dp)) {
+                sites.forEachIndexed { index, name ->
+                    val count = if (index == 0) results.size else bySite[name]?.size ?: 0
+                    val isSel = selected == index
+                    Column(
+                        Modifier.padding(horizontal = 10.dp, vertical = 8.dp).clickable { selected = index },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            if (index == 0) "全部  $count" else "$name  $count",
+                            color = if (isSel) TitaGreen else Color(0xFF888888),
+                            fontSize = if (isSel) 15.sp else 14.sp,
+                            fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Box(Modifier.size(width = if (isSel) 22.dp else 0.dp, height = 2.dp).background(TitaGreen))
+                    }
+                }
             }
         }
+        // 分隔线
+        Box(Modifier.fillMaxWidth().height(1.dp).background(Line))
         val shown = if (selected == 0) results else bySite[sites[selected]] ?: emptyList()
         ResultList(results = shown, onDetail = onDetail, showMore = if (selected == 0) showMore else false, onLoadMore = onLoadMore, showSite = selected == 0)
     }
@@ -334,23 +362,20 @@ private fun EmptyResultState() {
 
 @Composable
 private fun SearchResultCard(item: SearchResult, onClick: () -> Unit, showSite: Boolean = true) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    // zhuiju 风格: 白底无边框简约行, 左站名色块 + 信息 + 跳转
+    Surface(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        color = Color.White,
     ) {
-        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(color = MaterialTheme.colorScheme.tertiaryContainer, shape = MaterialTheme.shapes.small, modifier = Modifier.size(38.dp)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Surface(color = Color(0xFFE8F7EF), shape = RoundedCornerShape(6.dp), modifier = Modifier.size(38.dp)) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text(item.sourceSite.take(1).uppercase().ifBlank { "•" }, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onTertiaryContainer)
+                    Text(item.sourceSite.take(1).uppercase().ifBlank { "•" }, style = MaterialTheme.typography.titleMedium, color = TitaGreen, fontWeight = FontWeight.Bold)
                 }
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(item.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(item.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color(0xFF232323))
                 Spacer(Modifier.height(7.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     if (item.year.isNotBlank()) Tag(item.year)
@@ -359,18 +384,19 @@ private fun SearchResultCard(item: SearchResult, onClick: () -> Unit, showSite: 
                 }
                 if (showSite && item.sourceSite.isNotBlank()) {
                     Spacer(Modifier.height(7.dp))
-                    Text(item.sourceSite, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                    Text(item.sourceSite, style = MaterialTheme.typography.labelSmall, color = TitaGreen)
                 }
             }
             Spacer(Modifier.width(8.dp))
-            Icon(Icons.Default.Search, contentDescription = "查看详情", tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(18.dp))
+            Icon(Icons.Default.Search, contentDescription = "查看详情", tint = Color(0xFFD0D0D0), modifier = Modifier.size(18.dp))
         }
     }
+    Box(Modifier.fillMaxWidth().padding(start = 64.dp).height(1.dp).background(Line))
 }
 
 @Composable
 private fun Tag(text: String) {
-    Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = MaterialTheme.shapes.extraSmall) {
-        Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp))
+    Surface(color = Color(0xFFF3F3F3), shape = RoundedCornerShape(4.dp)) {
+        Text(text, style = MaterialTheme.typography.labelSmall, color = Color(0xFF888888), modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp))
     }
 }

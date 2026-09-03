@@ -32,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,8 @@ import kotlinx.coroutines.withContext
 import com.searchhub.app.model.CaptchaAnswer
 import com.searchhub.app.model.CaptchaRequest
 import com.searchhub.app.ui.AppViewModel
+
+private val TitaGreen = Color(0xFF1E9C5A)
 
 /**
  * 验证码处理宿主:观察全局验证码事件,弹出图片+输入框,把应答送回。
@@ -143,10 +146,16 @@ fun CaptchaHost(
             },
             confirmButton = {
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = {
-                        model.submitCaptchaAnswer(CaptchaAnswer(answer.trim()))
-                        activeRequest = null
-                    }, enabled = answer.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("提交验证码") }
+                    Button(
+                        onClick = {
+                            model.submitCaptchaAnswer(CaptchaAnswer(answer.trim()))
+                            activeRequest = null
+                        },
+                        enabled = answer.isNotBlank(),
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = TitaGreen),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(22.dp),
+                    ) { Text("提交验证码") }
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
                         OutlinedButton(onClick = { imgKey++ }) { Text("换一张") }
                         Spacer(Modifier.width(8.dp))

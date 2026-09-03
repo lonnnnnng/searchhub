@@ -53,6 +53,10 @@ import com.searchhub.app.data.SiteConfig
 import com.searchhub.app.data.SiteDefaults
 import com.searchhub.app.ui.AppViewModel
 
+// 参考"追剧"清爽绿白风
+private val TitaGreen = Color(0xFF1E9C5A)
+private val Line = Color(0xFFF0F0F0)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -121,7 +125,11 @@ fun SettingsScreen(
                         saved = false
                     }) { Text("恢复默认") }
                     Spacer(Modifier.width(8.dp))
-                    Button(onClick = { if (apply()) onBack() }) { Text("保存") }
+                    Button(
+                        onClick = { if (apply()) onBack() },
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = TitaGreen),
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+                    ) { Text("保存") }
                 }
             }
         },
@@ -130,13 +138,13 @@ fun SettingsScreen(
             Modifier.padding(pad).imePadding().fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
+            Surface(color = TitaGreen.copy(alpha = 0.1f), shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
                 Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Language, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimaryContainer, modifier = Modifier.size(28.dp))
+                    Icon(Icons.Default.Language, contentDescription = null, tint = TitaGreen, modifier = Modifier.size(28.dp))
                     Spacer(Modifier.width(12.dp))
                     Column {
-                        Text("公开索引", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
-                        Text("启用的站点会参与每次搜索", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Text("公开索引", style = MaterialTheme.typography.titleMedium, color = Color(0xFF232323))
+                        Text("启用的站点会参与每次搜索", style = MaterialTheme.typography.bodySmall, color = Color(0xFF888888))
                     }
                 }
             }
@@ -176,7 +184,10 @@ fun SettingsScreen(
                         Switch(
                             checked = proxyEnabled,
                             onCheckedChange = { proxyEnabled = it; saved = false },
-                            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.onPrimary),
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                checkedTrackColor = TitaGreen,
+                            ),
                         )
                     }
                     if (proxyEnabled) {
@@ -225,8 +236,8 @@ private fun SiteEditCard(
     ) {
         Column(Modifier.padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(color = if (site.enabled) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceVariant, shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.size(28.dp)) {
-                    Text(position.toString().padStart(2, '0'), style = MaterialTheme.typography.labelMedium, color = if (site.enabled) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(vertical = 6.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Surface(color = if (site.enabled) Color(0xFFE8F7EF) else Color(0xFFF3F3F3), shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.size(28.dp)) {
+                    Text(position.toString().padStart(2, '0'), style = MaterialTheme.typography.labelMedium, color = if (site.enabled) TitaGreen else Color(0xFF888888), modifier = Modifier.padding(vertical = 6.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
