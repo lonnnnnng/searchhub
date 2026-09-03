@@ -119,7 +119,7 @@ fun SearchScreen(
                 onQueryChange = { kw = it },
                 onSubmit = submit,
             )
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(6.dp))
             when (val state = ui) {
                 SearchUiState.Idle -> HistoryState(
                     history = vm.history.collectAsStateWithLifecycle().value,
@@ -153,20 +153,20 @@ private fun SearchHeader(
     onQueryChange: (String) -> Unit,
     onSubmit: () -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
-        Spacer(Modifier.height(10.dp))
+    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp)) {
+        Spacer(Modifier.height(6.dp))
         // 胶囊搜索框: 浅灰圆角 + 图标 + 搜索按钮
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Surface(
-                modifier = Modifier.weight(1f).height(44.dp),
+                modifier = Modifier.weight(1f).height(36.dp),
                 color = Color(0xFFF3F3F3),
                 shape = RoundedCornerShape(22.dp),
             ) {
-                Box(Modifier.fillMaxSize().padding(horizontal = 14.dp)) {
+                Box(Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
                         androidx.compose.foundation.text.BasicTextField(
                             value = query,
                             onValueChange = onQueryChange,
@@ -218,7 +218,7 @@ private fun HistoryState(
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(Icons.Default.History, contentDescription = null, tint = Color(0xFFC0C0C0), modifier = Modifier.size(40.dp))
-                    Spacer(Modifier.height(10.dp))
+                    Spacer(Modifier.height(6.dp))
                     Text("暂无搜索历史", style = MaterialTheme.typography.bodyMedium, color = Color(0xFF999999))
                 }
             }
@@ -235,7 +235,7 @@ private fun HistoryState(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(Icons.Default.History, contentDescription = null, tint = Color(0xFFB0B0B0), modifier = Modifier.size(17.dp))
-                    Spacer(Modifier.width(10.dp))
+                    Spacer(Modifier.width(6.dp))
                     Text(h, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF333333), modifier = Modifier.weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Icon(
                         Icons.Default.Close,
@@ -254,7 +254,7 @@ private fun HistoryState(
 private fun LoadingState(done: Int, total: Int) {
     Column(Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 52.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(10.dp))
         Text("正在扫描公开索引", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(6.dp))
         Text("$done / $total 个站点已响应", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -267,11 +267,11 @@ private fun LoadingState(done: Int, total: Int) {
 private fun ErrorState(message: String, onRetry: () -> Unit) {
     Column(Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 52.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(Icons.Default.ErrorOutline, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(40.dp))
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(8.dp))
         Text("这次搜索没有完成", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(6.dp))
         Text(message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis)
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(10.dp))
         OutlinedButton(onClick = onRetry) {
             Icon(Icons.Default.Refresh, contentDescription = null)
             Spacer(Modifier.width(6.dp))
@@ -283,7 +283,7 @@ private fun ErrorState(message: String, onRetry: () -> Unit) {
 @Composable
 private fun LoadingProgressBar(done: Int, total: Int) {
     val fraction = if (total > 0) done.toFloat() / total else 0f
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
@@ -347,7 +347,7 @@ private fun ResultList(
     onLoadMore: () -> Unit,
     showSite: Boolean = true,
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         item {
             Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("搜索结果", style = MaterialTheme.typography.titleMedium)
@@ -361,7 +361,7 @@ private fun ResultList(
             items(results, key = { it.detailUrl }) { item -> SearchResultCard(item, onClick = { onDetail(item) }, showSite = showSite) }
         }
         if (showMore) {
-            item { OutlinedButton(onClick = onLoadMore, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) { Text("加载更多结果") } }
+            item { OutlinedButton(onClick = onLoadMore, modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)) { Text("加载更多结果") } }
         }
     }
 }
@@ -370,7 +370,7 @@ private fun ResultList(
 private fun EmptyResultState() {
     Column(Modifier.fillMaxWidth().padding(vertical = 52.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(36.dp))
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         Text("站点已响应，但没有匹配结果", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(5.dp))
         Text("换一个片名或更短的关键词试试", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -384,13 +384,13 @@ private fun SearchResultCard(item: SearchResult, onClick: () -> Unit, showSite: 
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         color = MaterialTheme.colorScheme.surface,
     ) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(6.dp), modifier = Modifier.size(38.dp)) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(item.sourceSite.take(1).uppercase().ifBlank { "•" }, style = MaterialTheme.typography.titleMedium, color = TitaGreen, fontWeight = FontWeight.Bold)
                 }
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(5.dp))
             Column(Modifier.weight(1f)) {
                 Text(item.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface)
                 Spacer(Modifier.height(7.dp))
@@ -404,7 +404,7 @@ private fun SearchResultCard(item: SearchResult, onClick: () -> Unit, showSite: 
                     Text(item.sourceSite, style = MaterialTheme.typography.labelSmall, color = TitaGreen)
                 }
             }
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(5.dp))
             Icon(Icons.Default.Search, contentDescription = "查看详情", tint = Color(0xFFD0D0D0), modifier = Modifier.size(18.dp))
         }
     }

@@ -72,16 +72,16 @@ private val DarkColors = darkColorScheme(
 )
 
 private val SearchHubTypography = Typography(
-    // 与"追剧"一致: 系统默认非衬线, 朴实为主, 标题加粗
-    headlineSmall = TextStyle(fontSize = 19.sp),
-    titleLarge = TextStyle(fontSize = 17.sp, letterSpacing = 0.4.sp),
-    titleMedium = TextStyle(fontSize = 15.sp),
-    titleSmall = TextStyle(fontSize = 13.sp),
-    bodyMedium = TextStyle(fontSize = 14.sp),
-    bodySmall = TextStyle(fontSize = 12.sp),
-    labelLarge = TextStyle(fontSize = 14.sp),
-    labelMedium = TextStyle(fontSize = 12.sp),
-    labelSmall = TextStyle(fontSize = 10.sp),
+    // 紧凑风格: 全系缩小约2sp, 提高信息密度
+    headlineSmall = TextStyle(fontSize = 16.sp),
+    titleLarge = TextStyle(fontSize = 15.sp, letterSpacing = 0.3.sp),
+    titleMedium = TextStyle(fontSize = 13.sp),
+    titleSmall = TextStyle(fontSize = 11.sp),
+    bodyMedium = TextStyle(fontSize = 12.sp),
+    bodySmall = TextStyle(fontSize = 10.sp),
+    labelLarge = TextStyle(fontSize = 12.sp),
+    labelMedium = TextStyle(fontSize = 10.sp),
+    labelSmall = TextStyle(fontSize = 9.sp),
 )
 
 @Composable

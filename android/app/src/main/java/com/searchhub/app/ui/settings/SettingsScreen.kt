@@ -28,6 +28,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.searchhub.app.data.ProxyConfig
 import com.searchhub.app.data.SiteConfig
@@ -101,7 +103,7 @@ fun SettingsScreen(
         },
         bottomBar = {
             Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (saved) {
                         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
@@ -118,7 +120,7 @@ fun SettingsScreen(
                         portError = null
                         saved = false
                     }) { Text("恢复默认") }
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(5.dp))
                     Button(
                         onClick = { if (apply()) onBack() },
                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = TitaGreen),
@@ -129,7 +131,7 @@ fun SettingsScreen(
         },
     ) { pad ->
         Column(
-            Modifier.padding(pad).imePadding().fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 6.dp),
+            Modifier.padding(pad).imePadding().fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 6.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             SectionTitle(title = "站点来源", detail = "修改域名或暂时停用站点")
@@ -155,12 +157,12 @@ fun SettingsScreen(
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
-                Column(Modifier.padding(10.dp)) {
+                Column(Modifier.padding(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.small, modifier = Modifier.size(34.dp)) {
                             Icon(Icons.Default.Router, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.padding(8.dp))
                         }
-                        Spacer(Modifier.width(10.dp))
+                        Spacer(Modifier.width(6.dp))
                         Column(Modifier.weight(1f)) {
                             Text("HTTP 代理", style = MaterialTheme.typography.titleMedium)
                             Text(if (proxyEnabled) "搜索请求将经过代理" else "当前使用设备直连", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -175,7 +177,7 @@ fun SettingsScreen(
                         )
                     }
                     if (proxyEnabled) {
-                        Spacer(Modifier.height(10.dp))
+                        Spacer(Modifier.height(6.dp))
                         OutlinedTextField(value = proxyHost, onValueChange = { proxyHost = it; saved = false }, label = { Text("代理主机") }, singleLine = true, modifier = Modifier.fillMaxWidth())
                         Spacer(Modifier.height(6.dp))
                         OutlinedTextField(
@@ -198,7 +200,7 @@ fun SettingsScreen(
 
 @Composable
 private fun SectionTitle(title: String, detail: String) {
-    Column(Modifier.padding(start = 3.dp, top = 5.dp, bottom = 1.dp)) {
+    Column(Modifier.padding(start = 3.dp, top = 3.dp, bottom = 1.dp)) {
         Text(title, style = MaterialTheme.typography.titleSmall)
         Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
@@ -218,26 +220,40 @@ private fun SiteEditCard(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Column(Modifier.padding(10.dp)) {
+        Column(Modifier.padding(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(color = if (site.enabled) Color(0xFFE8F7EF) else Color(0xFFF3F3F3), shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.size(24.dp)) {
-                    Text(position.toString().padStart(2, '0'), style = MaterialTheme.typography.labelSmall, color = if (site.enabled) TitaGreen else Color(0xFF888888), modifier = Modifier.padding(vertical = 4.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Surface(color = if (site.enabled) Color(0xFFE8F7EF) else Color(0xFFF3F3F3), shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.size(20.dp)) {
+                    Text(position.toString().padStart(2, '0'), style = MaterialTheme.typography.labelSmall, color = if (site.enabled) TitaGreen else Color(0xFF888888), modifier = Modifier.padding(vertical = 2.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 9.sp)
                 }
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(4.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(site.name, style = MaterialTheme.typography.titleSmall)
-                    Text(site.id, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(site.name, style = MaterialTheme.typography.titleSmall, fontSize = 11.sp)
+                        Spacer(Modifier.width(4.dp))
+                        Text(site.id, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 9.sp)
+                    }
+                    if (site.enabled) {
+                        OutlinedTextField(
+                            value = site.baseUrl,
+                            onValueChange = onBaseUrl,
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth().height(34.dp),
+                            textStyle = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+                            colors = OutlinedTextFieldDefaults.colors(unfocusedBorderColor = Color.Transparent, unfocusedContainerColor = Color(0xFFF7F7F7)),
+                        )
+                    }
                 }
-                Switch(checked = site.enabled, onCheckedChange = onEnabled)
+                Spacer(Modifier.width(4.dp))
+                Switch(
+                    checked = site.enabled,
+                    onCheckedChange = onEnabled,
+                    modifier = Modifier.height(28.dp),
+                    colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = TitaGreen),
+                )
             }
-            if (site.enabled) {
-                Spacer(Modifier.height(8.dp))
-                OutlinedTextField(value = site.baseUrl, onValueChange = onBaseUrl, label = { Text("站点域名") }, singleLine = true, modifier = Modifier.fillMaxWidth(), textStyle = MaterialTheme.typography.bodySmall)
-                Spacer(Modifier.height(3.dp))
-                Text("搜索路径  ${site.searchPath}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
-            } else {
-                Spacer(Modifier.height(6.dp))
-                Text("已停用，不会参与搜索", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.background(MaterialTheme.colorScheme.error.copy(alpha = 0.08f), MaterialTheme.shapes.extraSmall).padding(horizontal = 6.dp, vertical = 3.dp))
+            if (!site.enabled) {
+                Spacer(Modifier.height(4.dp))
+                Text("已停用，不会参与搜索", style = MaterialTheme.typography.labelSmall, fontSize = 9.sp, color = MaterialTheme.colorScheme.error, modifier = Modifier.background(MaterialTheme.colorScheme.error.copy(alpha = 0.08f), MaterialTheme.shapes.extraSmall).padding(horizontal = 4.dp, vertical = 2.dp))
             }
         }
     }

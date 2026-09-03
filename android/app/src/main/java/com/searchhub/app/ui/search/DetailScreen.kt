@@ -138,11 +138,11 @@ private fun DetailLoadingState() {
 private fun DetailErrorState(message: String, onRetry: () -> Unit) {
     Column(Modifier.fillMaxSize().padding(horizontal = 28.dp, vertical = 76.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(Icons.Default.ErrorOutline, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(40.dp))
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(8.dp))
         Text("详情暂时无法打开", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(6.dp))
         Text(message, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 3, overflow = TextOverflow.Ellipsis)
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(10.dp))
         OutlinedButton(onClick = onRetry) {
             Icon(Icons.Default.Refresh, contentDescription = null)
             Spacer(Modifier.width(6.dp))
@@ -161,8 +161,8 @@ private fun DetailContent(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         item {
             // zhuiju 风格: 无边框白顶信息块
@@ -175,17 +175,17 @@ private fun DetailContent(
                     if (info.rate.isNotBlank()) DetailTag("评分 ${info.rate}", accent = true)
                 }
                 if (info.overview.isNotBlank()) {
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(8.dp))
                     Text(info.overview, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF888888), maxLines = 8, overflow = TextOverflow.Ellipsis)
                 }
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(8.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Surface(color = Color(0xFFE8F7EF), shape = RoundedCornerShape(4.dp), modifier = Modifier.size(26.dp)) {
                         Box(contentAlignment = Alignment.Center) {
                             Icon(Icons.Default.Link, contentDescription = null, tint = TitaGreen, modifier = Modifier.size(15.dp))
                         }
                     }
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(5.dp))
                     Text(info.sourceSite.ifBlank { "公开索引" }, style = MaterialTheme.typography.labelMedium, color = TitaGreen)
                 }
             }
@@ -247,9 +247,9 @@ private fun ResourceCard(
         }
         Spacer(Modifier.height(9.dp))
         Text(item.title, style = MaterialTheme.typography.bodyMedium, maxLines = 3, overflow = TextOverflow.Ellipsis, color = Color(0xFF333333))
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(8.dp))
         when {
-            item.url.isNotBlank() -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+            item.url.isNotBlank() -> Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
                 Surface(
                     modifier = Modifier.weight(1f).height(40.dp).clickable(onClick = onCopy),
                     color = MaterialTheme.colorScheme.surface,
