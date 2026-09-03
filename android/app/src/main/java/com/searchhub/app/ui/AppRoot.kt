@@ -10,9 +10,11 @@ import com.searchhub.app.ui.navigation.SearchHubNavHost
 
 @Composable
 fun AppRoot(model: AppViewModel = viewModel()) {
-    CaptchaHost(
-        model = model,
-    ) {
-        SearchHubNavHost(model = model)
+    SearchHubTheme {
+        CaptchaHost(
+            model = model,
+        ) {
+            SearchHubNavHost(model = model)
+        }
     }
 }

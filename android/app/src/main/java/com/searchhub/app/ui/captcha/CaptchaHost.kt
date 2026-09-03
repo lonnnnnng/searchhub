@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -113,8 +112,11 @@ fun CaptchaHost(
                             loading -> CircularProgressIndicator()
                             failed -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("图片加载失败", color = MaterialTheme.colorScheme.error)
-                                Text("点此重试", style = MaterialTheme.typography.labelMedium,
-                                    modifier = Modifier.clickable { imgKey++ })
+                                OutlinedButton(onClick = { imgKey++ }) {
+                                    Icon(Icons.Default.Refresh, contentDescription = null)
+                                    Spacer(Modifier.width(6.dp))
+                                    Text("重新加载")
+                                }
                             }
                             bitmap != null -> {
                                 // 以原始像素按 dp 展示(不铺满): 原图130x28, 放大2倍后260x56像素
@@ -140,20 +142,19 @@ fun CaptchaHost(
                 }
             },
             confirmButton = {
-                Row {
-                    OutlinedButton(onClick = { imgKey++ }) {
-                        Text("刷新")
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    OutlinedButton(onClick = {
-                        model.submitCaptchaAnswer(CaptchaAnswer(CaptchaAnswer.CANCEL))
-                        activeRequest = null
-                    }) { Text("取消") }
-                    Spacer(Modifier.width(8.dp))
+                Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = {
                         model.submitCaptchaAnswer(CaptchaAnswer(answer.trim()))
                         activeRequest = null
-                    }, enabled = answer.isNotBlank()) { Text("提交") }
+                    }, enabled = answer.isNotBlank(), modifier = Modifier.fillMaxWidth()) { Text("提交验证码") }
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        OutlinedButton(onClick = { imgKey++ }) { Text("换一张") }
+                        Spacer(Modifier.width(8.dp))
+                        OutlinedButton(onClick = {
+                            model.submitCaptchaAnswer(CaptchaAnswer(CaptchaAnswer.CANCEL))
+                            activeRequest = null
+                        }) { Text("取消") }
+                    }
                 }
             },
         )
