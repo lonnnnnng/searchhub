@@ -73,6 +73,11 @@ suspend fun resolveTdown(engine: HttpEngine, fetchUrl: String): Pair<String, Str
     val html = try { engine.getText(fetchUrl) } catch (e: Exception) { return "" to null }
     val doc = Jsoup.parse(html)
     val magnet = doc.select("a[href^=magnet:]").firstOrNull()?.attr("href")
-    val torrent = doc.select("a[href*=/dlt/]").firstOrNull()?.attr("href")
+    var torrent = doc.select("a[href*=/dlt/]").firstOrNull()?.attr("href")
+    // 种子直链是相对路径(如 /dlt/xxx), 补全为绝对 URL 才能复制/打开
+    if (torrent != null && !torrent.startsWith("http")) {
+        val origin = Regex("^(https?://[^/]+)").find(fetchUrl)?.groupValues?.get(1)
+        if (origin != null) torrent = origin + torrent
+    }
     return (magnet ?: "") to torrent
 }

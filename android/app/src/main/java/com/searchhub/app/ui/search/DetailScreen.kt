@@ -105,13 +105,19 @@ fun DetailScreen(
                     message = d.msg,
                     onRetry = { vm.openDetail(SearchResult(title = "", sourceSite = site, detailUrl = url)) },
                 )
-                is DetailUiState.Loaded -> DetailContent(
-                    info = d.info,
-                    resolving = resolving,
-                    onResolve = { idx, item -> if (item.url.isBlank() && item.fetchUrl.isNotBlank()) vm.resolveResource(item, idx) },
-                    onCopy = { copyText(context, it) },
-                    onOpen = { openUrl(context, it) },
-                )
+                is DetailUiState.Loaded -> {
+                    // 统一规范化资源链接: 相对路径(/dlt/xxx 等)补全域名, 避免复制/打开不可用
+                    val fixed = d.info.copy(
+                        resources = d.info.resources.map { it.copy(url = absolutizeUrl(it.url, url)) },
+                    )
+                    DetailContent(
+                        info = fixed,
+                        resolving = resolving,
+                        onResolve = { idx, item -> if (item.url.isBlank() && item.fetchUrl.isNotBlank()) vm.resolveResource(item, idx) },
+                        onCopy = { copyText(context, it) },
+                        onOpen = { openUrl(context, it) },
+                    )
+                }
             }
         }
     }
@@ -322,4 +328,17 @@ private fun openUrl(context: Context, url: String) {
     } catch (e: Exception) {
         Toast.makeText(context, "无法打开链接", Toast.LENGTH_SHORT).show()
     }
+}
+
+/** 相对路径资源链接(如 /dlt/xxx.torrent)补全为绝对 URL; magnet:/thunder:/ed2k: 等协议链接原样返回 */
+private fun absolutizeUrl(url: String, detailUrl: String): String {
+    val u = url.trim()
+    if (u.isBlank()) return u
+    if (u.startsWith("http://") || u.startsWith("https://")) return u
+    if (u.contains("://")) return u  // magnet:/thunder:/ed2k: 等
+    if (u.startsWith("/")) {
+        val origin = Regex("^(https?://[^/]+)").find(detailUrl)?.groupValues?.get(1)
+        if (origin != null) return origin + u
+    }
+    return u
 }
