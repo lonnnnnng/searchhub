@@ -167,16 +167,15 @@ private fun SearchHeader(
                 shape = RoundedCornerShape(22.dp),
             ) {
                 Row(
-                    Modifier.fillMaxSize().clickable { /* 聚焦交给内部 OutlinedTextField */ },
+                    Modifier.fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Spacer(Modifier.width(14.dp))
                     Icon(Icons.Default.Search, contentDescription = null, tint = Color(0xFFBDBDBD), modifier = Modifier.size(18.dp))
-                    Box(Modifier.weight(1f).padding(start = 4.dp, end = 8.dp)) {
+Box(Modifier.weight(1f).padding(start = 4.dp, end = 8.dp)) {
                         androidx.compose.foundation.text.BasicTextField(
                             value = query,
                             onValueChange = onQueryChange,
-                            singleLine = true,
                             textStyle = MaterialTheme.typography.bodyMedium,
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                             keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
