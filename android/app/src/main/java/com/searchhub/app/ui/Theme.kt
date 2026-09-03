@@ -1,6 +1,5 @@
 package com.searchhub.app.ui
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -87,8 +86,9 @@ private val SearchHubTypography = Typography(
 
 @Composable
 fun SearchHubTheme(content: @Composable () -> Unit) {
+    // 固定浅色模式: 白底清爽风格, 不跟随系统深色
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors,
+        colorScheme = LightColors,
         typography = SearchHubTypography,
         content = content,
     )

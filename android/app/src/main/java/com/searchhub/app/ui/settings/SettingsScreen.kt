@@ -18,7 +18,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Router
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -91,12 +90,7 @@ fun SettingsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = {
-                    Column {
-                        Text("连接设置", style = MaterialTheme.typography.titleLarge)
-                        Text("管理索引与网络入口", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                },
+                title = { Text("设置", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = {
                     IconButton(onClick = { if (apply()) onBack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "保存并返回")
@@ -107,7 +101,7 @@ fun SettingsScreen(
         },
         bottomBar = {
             Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp, border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     if (saved) {
                         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(6.dp))
@@ -135,19 +129,9 @@ fun SettingsScreen(
         },
     ) { pad ->
         Column(
-            Modifier.padding(pad).imePadding().fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            Modifier.padding(pad).imePadding().fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Surface(color = TitaGreen.copy(alpha = 0.1f), shape = MaterialTheme.shapes.large, modifier = Modifier.fillMaxWidth()) {
-                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Language, contentDescription = null, tint = TitaGreen, modifier = Modifier.size(28.dp))
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text("公开索引", style = MaterialTheme.typography.titleMedium, color = Color(0xFF232323))
-                        Text("启用的站点会参与每次搜索", style = MaterialTheme.typography.bodySmall, color = Color(0xFF888888))
-                    }
-                }
-            }
             SectionTitle(title = "站点来源", detail = "修改域名或暂时停用站点")
             draft.forEachIndexed { idx, site ->
                 SiteEditCard(
@@ -171,12 +155,12 @@ fun SettingsScreen(
                 border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
-                Column(Modifier.padding(14.dp)) {
+                Column(Modifier.padding(10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.small, modifier = Modifier.size(38.dp)) {
-                            Icon(Icons.Default.Router, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.padding(9.dp))
+                        Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = MaterialTheme.shapes.small, modifier = Modifier.size(34.dp)) {
+                            Icon(Icons.Default.Router, contentDescription = null, tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.padding(8.dp))
                         }
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(10.dp))
                         Column(Modifier.weight(1f)) {
                             Text("HTTP 代理", style = MaterialTheme.typography.titleMedium)
                             Text(if (proxyEnabled) "搜索请求将经过代理" else "当前使用设备直连", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -191,9 +175,9 @@ fun SettingsScreen(
                         )
                     }
                     if (proxyEnabled) {
-                        Spacer(Modifier.height(14.dp))
+                        Spacer(Modifier.height(10.dp))
                         OutlinedTextField(value = proxyHost, onValueChange = { proxyHost = it; saved = false }, label = { Text("代理主机") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                        Spacer(Modifier.height(9.dp))
+                        Spacer(Modifier.height(6.dp))
                         OutlinedTextField(
                             value = proxyPort,
                             onValueChange = { proxyPort = it.filter(Char::isDigit); portError = null; saved = false },
@@ -207,15 +191,15 @@ fun SettingsScreen(
                     }
                 }
             }
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
 
 @Composable
 private fun SectionTitle(title: String, detail: String) {
-    Column(Modifier.padding(start = 3.dp, top = 7.dp, bottom = 1.dp)) {
-        Text(title, style = MaterialTheme.typography.titleMedium)
+    Column(Modifier.padding(start = 3.dp, top = 5.dp, bottom = 1.dp)) {
+        Text(title, style = MaterialTheme.typography.titleSmall)
         Text(detail, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
@@ -234,26 +218,26 @@ private fun SiteEditCard(
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Column(Modifier.padding(14.dp)) {
+        Column(Modifier.padding(10.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Surface(color = if (site.enabled) Color(0xFFE8F7EF) else Color(0xFFF3F3F3), shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.size(28.dp)) {
-                    Text(position.toString().padStart(2, '0'), style = MaterialTheme.typography.labelMedium, color = if (site.enabled) TitaGreen else Color(0xFF888888), modifier = Modifier.padding(vertical = 6.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Surface(color = if (site.enabled) Color(0xFFE8F7EF) else Color(0xFFF3F3F3), shape = MaterialTheme.shapes.extraSmall, modifier = Modifier.size(24.dp)) {
+                    Text(position.toString().padStart(2, '0'), style = MaterialTheme.typography.labelSmall, color = if (site.enabled) TitaGreen else Color(0xFF888888), modifier = Modifier.padding(vertical = 4.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
-                Spacer(Modifier.width(10.dp))
+                Spacer(Modifier.width(8.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(site.name, style = MaterialTheme.typography.titleMedium)
-                    Text(site.id, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(site.name, style = MaterialTheme.typography.titleSmall)
+                    Text(site.id, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                 }
                 Switch(checked = site.enabled, onCheckedChange = onEnabled)
             }
             if (site.enabled) {
-                Spacer(Modifier.height(11.dp))
-                OutlinedTextField(value = site.baseUrl, onValueChange = onBaseUrl, label = { Text("站点域名") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-                Spacer(Modifier.height(5.dp))
-                Text("搜索路径  ${site.searchPath}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
-            } else {
                 Spacer(Modifier.height(8.dp))
-                Text("已停用，不会参与搜索", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.background(MaterialTheme.colorScheme.error.copy(alpha = 0.08f), MaterialTheme.shapes.extraSmall).padding(horizontal = 8.dp, vertical = 5.dp))
+                OutlinedTextField(value = site.baseUrl, onValueChange = onBaseUrl, label = { Text("站点域名") }, singleLine = true, modifier = Modifier.fillMaxWidth(), textStyle = MaterialTheme.typography.bodySmall)
+                Spacer(Modifier.height(3.dp))
+                Text("搜索路径  ${site.searchPath}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline, maxLines = 1, overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+            } else {
+                Spacer(Modifier.height(6.dp))
+                Text("已停用，不会参与搜索", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, modifier = Modifier.background(MaterialTheme.colorScheme.error.copy(alpha = 0.08f), MaterialTheme.shapes.extraSmall).padding(horizontal = 6.dp, vertical = 3.dp))
             }
         }
     }

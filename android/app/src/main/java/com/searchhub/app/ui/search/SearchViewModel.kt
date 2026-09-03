@@ -36,9 +36,49 @@ sealed interface DetailUiState {
 
 class SearchViewModel(
     private val repository: SearchRepository,
+    app: android.app.Application,
 ) : ViewModel() {
 
     val query = MutableStateFlow("")
+
+    private val prefs = app.getSharedPreferences("search_history", android.content.Context.MODE_PRIVATE)
+
+    private val _history = MutableStateFlow<List<String>>(loadHistory())
+    val history: StateFlow<List<String>> = _history.asStateFlow()
+
+    private fun loadHistory(): List<String> {
+        return prefs.getStringSet("keywords", emptySet())?.toList() ?: emptyList()
+    }
+
+    private fun persist(list: List<String>) {
+        prefs.edit().putStringSet("keywords", list.toSet()).apply()
+    }
+
+    /** 记录一条搜索历史(去重置顶, 上限 20 条) */
+    fun addHistory(kw: String) {
+        val t = kw.trim()
+        if (t.isBlank()) return
+        val cur = _history.value.toMutableList()
+        cur.remove(t)
+        cur.add(0, t)
+        val capped = cur.take(20)
+        _history.value = capped
+        persist(capped)
+    }
+
+    /** 删除一条历史 */
+    fun removeHistory(kw: String) {
+        val cur = _history.value.toMutableList()
+        cur.remove(kw)
+        _history.value = cur
+        persist(cur)
+    }
+
+    /** 清空历史 */
+    fun clearHistory() {
+        _history.value = emptyList()
+        persist(emptyList())
+    }
 
     private val _ui = MutableStateFlow<SearchUiState>(SearchUiState.Idle)
     val ui: StateFlow<SearchUiState> = _ui.asStateFlow()
@@ -51,6 +91,7 @@ class SearchViewModel(
 
     fun search(kw: String, page: Int = 1) {
         query.value = kw
+        if (page == 1) addHistory(kw)
         val total = repository.activeCount()
         _ui.value = SearchUiState.Loading(kw = kw, done = 0, total = total)
         viewModelScope.launch {

@@ -72,7 +72,8 @@ fun DetailScreen(
     onBack: () -> Unit,
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val vm: SearchViewModel = viewModel { SearchViewModel(model.repository) }
+    val detailApp = androidx.compose.ui.platform.LocalContext.current.applicationContext as android.app.Application
+    val vm: SearchViewModel = viewModel { SearchViewModel(model.repository, detailApp) }
     val detail by vm.detail.collectAsStateWithLifecycle()
     val resolving by vm.resolving.collectAsStateWithLifecycle()
 
@@ -226,7 +227,7 @@ private fun ResourceCard(
     onCopy: () -> Unit,
     onOpen: () -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth().background(Color.White, RoundedCornerShape(8.dp)).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp)).padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Surface(color = Color(0xFFE8F7EF), shape = RoundedCornerShape(4.dp)) {
                 Text(typeLabel(item.type), style = MaterialTheme.typography.labelMedium, color = TitaGreen, modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
@@ -245,7 +246,7 @@ private fun ResourceCard(
             item.url.isNotBlank() -> Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 Surface(
                     modifier = Modifier.weight(1f).height(40.dp).clickable(onClick = onCopy),
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(20.dp),
                 ) {
                     Box(Modifier.fillMaxSize().border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
