@@ -233,68 +233,41 @@ private fun ResourceCard(
     onCopy: () -> Unit,
     onOpen: () -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp)).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+        // 第一行: 类型 + 标题 + 操作按钮
         Row(verticalAlignment = Alignment.CenterVertically) {
             Surface(color = Color(0xFFE8F7EF), shape = RoundedCornerShape(4.dp)) {
-                Text(typeLabel(item.type), style = MaterialTheme.typography.labelMedium, color = TitaGreen, modifier = Modifier.padding(horizontal = 8.dp, vertical = 5.dp))
+                Text(typeLabel(item.type), style = MaterialTheme.typography.labelSmall, color = TitaGreen, modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp))
             }
+            Spacer(Modifier.width(6.dp))
+            Text(item.title, style = MaterialTheme.typography.bodySmall, maxLines = 1, overflow = TextOverflow.Ellipsis, color = Color(0xFF333333), modifier = Modifier.weight(1f))
             if (item.quality.isNotBlank()) {
-                Spacer(Modifier.width(7.dp))
+                Spacer(Modifier.width(4.dp))
                 Text(item.quality, style = MaterialTheme.typography.labelSmall, color = Color(0xFF888888))
             }
-            Spacer(Modifier.weight(1f))
-            if (item.size.isNotBlank()) Text(item.size, style = MaterialTheme.typography.labelSmall, color = Color(0xFF949494))
-        }
-        Spacer(Modifier.height(9.dp))
-        Text(item.title, style = MaterialTheme.typography.bodyMedium, maxLines = 3, overflow = TextOverflow.Ellipsis, color = Color(0xFF333333))
-        Spacer(Modifier.height(8.dp))
-        when {
-            item.url.isNotBlank() -> Row(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.fillMaxWidth()) {
-                Surface(
-                    modifier = Modifier.weight(1f).height(40.dp).clickable(onClick = onCopy),
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(20.dp),
-                ) {
-                    Box(Modifier.fillMaxSize().border(1.dp, Color(0xFFE0E0E0), RoundedCornerShape(20.dp)), contentAlignment = Alignment.Center) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.ContentCopy, contentDescription = null, tint = TitaGreen, modifier = Modifier.size(16.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text("复制", color = TitaGreen, style = MaterialTheme.typography.labelLarge)
-                        }
-                    }
-                }
-                Surface(
-                    modifier = Modifier.weight(1f).height(40.dp).clickable(onClick = onOpen),
-                    color = TitaGreen,
-                    shape = RoundedCornerShape(20.dp),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                            Spacer(Modifier.width(6.dp))
-                            Text("打开", color = Color.White, style = MaterialTheme.typography.labelLarge)
-                        }
-                    }
-                }
+            if (item.size.isNotBlank()) {
+                Spacer(Modifier.width(4.dp))
+                Text(item.size, style = MaterialTheme.typography.labelSmall, color = Color(0xFF949494))
             }
-            item.fetchUrl.isNotBlank() -> Surface(
-                modifier = Modifier.fillMaxWidth().height(40.dp).clickable(enabled = !resolving, onClick = onResolve),
-                color = TitaGreen,
-                shape = RoundedCornerShape(20.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (resolving) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = Color.White)
-                        } else {
-                            Icon(Icons.Default.Refresh, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
-                        }
-                        Spacer(Modifier.width(7.dp))
-                        Text(if (resolving) "正在解析真实链接" else "解析真实链接", color = Color.White, style = MaterialTheme.typography.labelLarge)
+            Spacer(Modifier.width(4.dp))
+            when {
+                item.url.isNotBlank() -> Row {
+                    IconButton(onClick = onCopy, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.ContentCopy, contentDescription = "复制", tint = TitaGreen, modifier = Modifier.size(16.dp))
+                    }
+                    IconButton(onClick = onOpen, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = "打开", tint = TitaGreen, modifier = Modifier.size(16.dp))
                     }
                 }
+                item.fetchUrl.isNotBlank() -> IconButton(onClick = onResolve, modifier = Modifier.size(28.dp), enabled = !resolving) {
+                    Icon(
+                        if (resolving) Icons.Default.Refresh else Icons.Default.Link,
+                        contentDescription = if (resolving) "解析中" else "解析",
+                        tint = TitaGreen, modifier = Modifier.size(16.dp),
+                    )
+                }
+                else -> Text("需源站", style = MaterialTheme.typography.labelSmall, color = Color(0xFFB0B0B0))
             }
-            else -> Text("需在源站查看", style = MaterialTheme.typography.labelMedium, color = Color(0xFF949494))
         }
     }
     Box(Modifier.fillMaxWidth().height(1.dp).background(Line))

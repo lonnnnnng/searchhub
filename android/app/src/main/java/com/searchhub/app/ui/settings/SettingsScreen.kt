@@ -3,6 +3,7 @@ package com.searchhub.app.ui.settings
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Router
@@ -252,12 +255,11 @@ private fun SiteEditCard(
                     }
                 }
                 Spacer(Modifier.width(2.dp))
-                Switch(
-                    checked = site.enabled,
-                    onCheckedChange = onEnabled,
-                    modifier = Modifier.height(22.dp).width(34.dp),
-                    thumbContent = null,
-                    colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = TitaGreen),
+                Icon(
+                    imageVector = if (site.enabled) Icons.Default.Check else Icons.Default.Close,
+                    contentDescription = if (site.enabled) "已启用, 点击停用" else "已停用, 点击启用",
+                    tint = if (site.enabled) TitaGreen else Color(0xFFB0B0B0),
+                    modifier = Modifier.size(16.dp).clickable { onEnabled(!site.enabled) },
                 )
             }
             if (!site.enabled) {
