@@ -3,14 +3,14 @@
     <!-- 应用主主题: 浅色清爽白底 -->
     <style name="Theme.SearchHub" parent="android:Theme.Material.Light.NoActionBar" />
 
-    <!-- 启动屏主题: 纯色背景 + 淡化图标(透明图标), 消除启动闪烁 -->
+    <!-- 启动屏主题: 纯白背景 + 淡化图标(透明图标), 消除启动闪烁 -->
     <style name="Theme.SearchHub.Starting" parent="Theme.SplashScreen">
-        <!-- 纯色背景: 应用主色绿, 与品牌一致且柔和 -->
-        <item name="windowSplashScreenBackground">#1E9C5A</item>
-        <!-- 透明图标: 形同淡化, 只剩纯色背景 -->
+        <!-- 纯白背景 -->
+        <item name="windowSplashScreenBackground">#FFFFFF</item>
+        <!-- 透明图标: 形同淡化, 只剩纯白背景 -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_blank</item>
-        <!-- 图标背景色 -->
-        <item name="windowSplashScreenIconBackgroundColor">#1E9C5A</item>
+        <!-- 图标背景色(透明) -->
+        <item name="windowSplashScreenIconBackgroundColor">#00FFFFFF</item>
         <!-- 启动后主题: 回到主主题 -->
         <item name="postSplashScreenTheme">@style/Theme.SearchHub</item>
     </style>
