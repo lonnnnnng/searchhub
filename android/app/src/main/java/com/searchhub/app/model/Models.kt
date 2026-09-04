@@ -22,6 +22,7 @@ data class ResourceItem(
     val size: String = "",
     val sourceSite: String = "",
     val postBody: String = "",       // 若需 POST,携带的表单体(如 csrf=xxx)
+    val referer: String = "",        // 二次跳转所需的 Referer(如比特大雄 down-m.php 必须带详情页 Referer)
 )
 
 /** 详情解析结果 */

@@ -11,8 +11,8 @@ android {
         applicationId = "com.searchhub.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 14
-        versionName = "1.8.0"
+        versionCode = 15
+        versionName = "1.8.1"
     }
 
     val releaseStoreFile = providers.gradleProperty("searchhubReleaseStoreFile")
@@ -57,9 +57,17 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    testOptions {
+        // 允许单元测试里调用 android.util.Log 等返回默认值而非抛异常
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
+    testImplementation("junit:junit:4.13.2")
+    // unit test 环境无 android.jar 真实现, 用 JVM 版 org.json 支撑 JSON API 站适配器的审计
+    testImplementation("org.json:json:20240303")
     implementation(platform("androidx.compose:compose-bom:2026.03.01"))
     implementation("androidx.activity:activity-compose:1.12.2")
     implementation("androidx.compose.ui:ui:1.10.6")

@@ -14,23 +14,24 @@
 - 🎨 **清爽绿白 UI**：参考影视工具常见风格——绿主色(#1E9C5A)强调、白底灰字、圆角胶囊搜索框、文字绿条 tab，深浅色跟随系统
 - 📦 **体积小巧**：Release APK 仅 ~1.8MB（R8 裁剪）
 
-## 已接入站点（13 个）
+## 已接入站点（12 个）
 
 | 站点 | 搜索方式 | 资源类型 |
 |---|---|---|
 | BT影视 btbtlb.com | GET /search/ | 磁力 / 种子 |
 | 狐狸君 foxjun.com | JSON API | 磁力 / 百度 / 夸克 / 迅雷网盘 |
 | 雪落影视 xlys02.com | GET /search/ (算术验证码) | 磁力 / 电驴 / 网盘 |
-| SeedHub seedhub.cc | GET /s/ (被 CF 拦截) | 磁力 / 网盘 |
+| SeedHub seedhub.cc | GET /s/ (靠会话 cookie 过 CF) | 磁力 / 网盘 |
 | 云集 binhd.com | GET /resources/?q= | 网盘（POST 跳转） |
 | 6v520 6v520.com | 帝国CMS POST | 磁力 / 迅雷 / 电驴 / 网盘 |
 | 电影港 dygang.tv | 帝国CMS POST | 磁力 / 迅雷 / 网盘 |
 | 电影天堂 dytt8899.com | 帝国CMS POST | 磁力 / 迅雷 / 网盘 |
 | 451024 video.451024.xyz | JSON API | 夸克 / 百度 / 迅雷网盘直链 |
-| 短剧狗 duanjugou.top | GET /search.php (短剧) | 网盘直链 |
 | Showpaw showpaw.xyz | JSON API | 多网盘直链 + 提取码 |
-| 比特大雄 btdx8.net | GET /?s= | 磁力 |
+| 比特大雄 btdx8.net | GET /?s= | 磁力 / 种子(老条目经 calldown 二次解析) |
 | 新版6v xb6v.com | 帝国CMS POST | 磁力 / 迅雷 / 电驴 / 网盘 |
+
+> 已下线：短剧狗（btwaf JS 挑战拦截非浏览器请求，搜索恒为空）；部分条目比特大雄新片源站磁力为占位符、云集部分资源需登录源站，属于站点侧数据/权限限制。
 
 > 搜索 "batman" 实测聚合 196 条结果（含雪落影视 4 条）。
 
@@ -91,7 +92,7 @@ cd android
 
 | 文档 | 说明 |
 |---|---|
-| [docs/站点对接文档.md](docs/站点对接文档.md) | 13 个站点逐一对接实现、踩坑记录、故障排查 |
+| [docs/站点对接文档.md](docs/站点对接文档.md) | 各站点逐一对接实现、踩坑记录、故障排查 |
 | [docs/技术文档.md](docs/技术文档.md) | 应用架构、模块设计、技术栈、关键实现 |
 | [docs/需求文档.md](docs/需求文档.md) | 产品需求、功能清单、非功能需求 |
 | [docs/路线图.md](docs/路线图.md) | 版本规划、后续迭代方向 |

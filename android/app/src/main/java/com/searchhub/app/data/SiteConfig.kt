@@ -68,12 +68,6 @@ object SiteDefaults {
             matchUrl = "/",
         ),
         SiteConfig(
-            id = "duanjugou", name = "短剧狗",
-            baseUrl = "https://duanjugou.top",
-            searchPath = "/search.php?q=\${kw}",
-            matchUrl = "/",
-        ),
-        SiteConfig(
             id = "showpaw", name = "Showpaw",
             baseUrl = "https://www.showpaw.xyz",
             searchPath = "/",

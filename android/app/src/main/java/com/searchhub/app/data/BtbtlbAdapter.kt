@@ -52,10 +52,13 @@ class BtbtlbAdapter(override val config: SiteConfig, private val engine: HttpEng
         val title = doc.select("h1").firstOrNull()?.text()
             ?: doc.select(".module-info-heading").firstOrNull()?.text() ?: ""
         val resources = mutableListOf<ResourceItem>()
+        // 同一片名被大量重复转贴(同名行可达 50+), 按标题去重
+        val seenTitles = mutableSetOf<String>()
         for (a in doc.select("a[href*=/tdown/]")) {
             val href = a.attr("href")
             val t = a.attr("title").ifBlank { a.text() }
             if (t.isBlank()) continue
+            if (!seenTitles.add(t.trim())) continue
             resources += ResourceItem(
                 type = "torrent",
                 title = t,

@@ -34,7 +34,6 @@ class SearchRepository(
                 "dygang" -> DygangAdapter(cfg, engine)
                 "dytt8899" -> Dytt8899Adapter(cfg, engine)
                 "451024" -> Seven451024Adapter(cfg, engine)
-                "duanjugou" -> DuanjugouAdapter(cfg, engine)
                 "showpaw" -> ShowpawAdapter(cfg, engine)
                 "btdx8" -> Btdx8Adapter(cfg, engine)
                 "xb6v" -> Xb6vAdapter(cfg, engine)
@@ -110,6 +109,12 @@ class SearchRepository(
                 val csrf = item.postBody.removePrefix("csrfmiddlewaretoken=")
                 val real = if (csrf.isNotBlank()) resolveBinhdLink(engine, item.fetchUrl, csrf) else ""
                 if (real.isNotBlank()) item.copy(url = real, type = "netdisk")
+                else item
+            }
+            "比特大雄" -> {
+                // 下载页(需 Referer=详情页) → file_id+fc POST calldown → 真实种子文件链接
+                val real = resolveBtdx8(engine, item.fetchUrl, item.referer)
+                if (real.isNotBlank()) item.copy(url = real, type = "torrent")
                 else item
             }
             else -> item
