@@ -162,9 +162,9 @@ private fun SearchHeader(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Surface(
-                modifier = Modifier.weight(1f).height(36.dp),
+                modifier = Modifier.weight(1f).height(38.dp),
                 color = Color(0xFFF3F3F3),
-                shape = RoundedCornerShape(22.dp),
+                shape = RoundedCornerShape(19.dp),
             ) {
                 Box(Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
                         androidx.compose.foundation.text.BasicTextField(
@@ -190,14 +190,14 @@ private fun SearchHeader(
                         )
                     }
             }
-            // 绿色搜索按钮
+            // 绿色搜索按钮(与输入框同高对齐)
             Surface(
-                modifier = Modifier.size(width = 44.dp, height = 44.dp).clickable(enabled = query.isNotBlank(), onClick = onSubmit),
+                modifier = Modifier.size(width = 38.dp, height = 38.dp).clickable(enabled = query.isNotBlank(), onClick = onSubmit),
                 color = if (query.isNotBlank()) TitaGreen else Color(0xFFCCCCCC),
-                shape = RoundedCornerShape(22.dp),
+                shape = RoundedCornerShape(19.dp),
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Search, contentDescription = "搜索", tint = Color.White, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.Search, contentDescription = "搜索", tint = Color.White, modifier = Modifier.size(19.dp))
                 }
             }
         }
@@ -347,9 +347,9 @@ private fun ResultList(
     onLoadMore: () -> Unit,
     showSite: Boolean = true,
 ) {
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)) {
         item {
-            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 5.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("搜索结果", style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.weight(1f))
                 Text("${results.size} 条", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -379,41 +379,38 @@ private fun EmptyResultState() {
 
 @Composable
 private fun SearchResultCard(item: SearchResult, onClick: () -> Unit, showSite: Boolean = true) {
-    // 清爽无边框简约行, 左站名色块 + 信息 + 跳转; 背景跟随主题(浅色白/深色深灰)
+    // 紧凑双行: 标题 + 一行元信息(站名/年份/清晰度/类型); 去掉字母色块, 提高单屏条目数
+    val hasMeta = (showSite && item.sourceSite.isNotBlank()) || item.year.isNotBlank() || item.quality.isNotBlank() || item.type.isNotBlank()
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         color = MaterialTheme.colorScheme.surface,
     ) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(6.dp), modifier = Modifier.size(38.dp)) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(item.sourceSite.take(1).uppercase().ifBlank { "•" }, style = MaterialTheme.typography.titleMedium, color = TitaGreen, fontWeight = FontWeight.Bold)
-                }
-            }
-            Spacer(Modifier.width(5.dp))
-            Column(Modifier.weight(1f)) {
-                Text(item.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface)
-                Spacer(Modifier.height(7.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+            Text(item.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis, color = MaterialTheme.colorScheme.onSurface)
+            if (hasMeta) {
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+                    if (showSite && item.sourceSite.isNotBlank()) SiteTag(item.sourceSite)
                     if (item.year.isNotBlank()) Tag(item.year)
                     if (item.quality.isNotBlank()) Tag(item.quality)
                     if (item.type.isNotBlank()) Tag(item.type)
                 }
-                if (showSite && item.sourceSite.isNotBlank()) {
-                    Spacer(Modifier.height(7.dp))
-                    Text(item.sourceSite, style = MaterialTheme.typography.labelSmall, color = TitaGreen)
-                }
             }
-            Spacer(Modifier.width(5.dp))
-            Icon(Icons.Default.Search, contentDescription = "查看详情", tint = Color(0xFFD0D0D0), modifier = Modifier.size(18.dp))
         }
     }
-    Box(Modifier.fillMaxWidth().padding(start = 64.dp).height(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
+    Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
+}
+
+@Composable
+private fun SiteTag(text: String) {
+    Surface(color = MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(4.dp)) {
+        Text(text, style = MaterialTheme.typography.labelSmall, color = TitaGreen, fontWeight = FontWeight.Medium, modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp))
+    }
 }
 
 @Composable
 private fun Tag(text: String) {
     Surface(color = MaterialTheme.colorScheme.surfaceVariant, shape = RoundedCornerShape(4.dp)) {
-        Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 7.dp, vertical = 3.dp))
+        Text(text, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp))
     }
 }

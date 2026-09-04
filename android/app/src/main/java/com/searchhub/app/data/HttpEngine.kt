@@ -24,7 +24,6 @@ import kotlin.coroutines.resumeWithException
  * 统一 HTTP 引擎。
  * - 携带模拟浏览器 UA
  * - 按站点持久化 cookie(验证码通过后需要保持 session)
- * - 可选 HTTP 代理(默认关闭,自动检测设备 clash? 用户可手动配)
  * - 提供同步挂起方法
  */
 class HttpEngine {
@@ -35,34 +34,15 @@ class HttpEngine {
     }
 
     private val cookieJar = PersistentCookieJar()
-    private var proxyEnabled = false
-    private var proxyHost = "127.0.0.1"
-    private var proxyPort = 7890
 
-    @Volatile
-    private var client: OkHttpClient = buildClient()
-
-    private fun buildClient(): OkHttpClient {
-        val b = OkHttpClient.Builder()
-            .connectTimeout(12, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
-            .followRedirects(true)
-            .followSslRedirects(true)
-            .cookieJar(cookieJar)
-        if (proxyEnabled) {
-            b.proxy(java.net.Proxy(java.net.Proxy.Type.HTTP, java.net.InetSocketAddress(proxyHost, proxyPort)))
-        }
-        // 释放: OkHttp >=4.12 无 connectionPool 配置必要
-        return b.build()
-    }
-
-    fun updateProxy(enabled: Boolean, host: String, port: Int) {
-        proxyEnabled = enabled
-        proxyHost = host
-        proxyPort = port
-        client = buildClient()
-    }
+    private val client: OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(12, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .writeTimeout(15, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
+        .cookieJar(cookieJar)
+        .build()
 
     fun clearSitesCookies(host: String) {
         cookieJar.clear(host)

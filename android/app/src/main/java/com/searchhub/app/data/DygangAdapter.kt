@@ -20,6 +20,9 @@ class DygangAdapter(override val config: SiteConfig, private val engine: HttpEng
 
     private val baseUrl = config.baseUrl.trimEnd('/')
 
+    // 真实条目 URL 形如 /ys/20220414/49183.htm (id 偶含字母, 如 CKXT.htm); 用来过滤"设为主页 index.htm"/"help.htm"等导航链接
+    private val detailLink = Regex("""^(?:https?://[^/]+)?/[A-Za-z0-9]+/\d{8}/[A-Za-z0-9]+\.htm$""")
+
     override suspend fun search(kw: String, page: Int): List<SearchResult> = withContext(Dispatchers.IO) {
         if (page > 1) return@withContext emptyList()
         val body = FormBody.Builder()
@@ -31,9 +34,13 @@ class DygangAdapter(override val config: SiteConfig, private val engine: HttpEng
         val html = try { engine.postTextGbk("$baseUrl/e/search/index.php", body, referer = "$baseUrl/") } catch (e: Exception) { return@withContext emptyList() }
         val doc = Jsoup.parse(html)
         val out = mutableListOf<SearchResult>()
-        // 结果卡片: a[href$=.htm] + img alt 提供标题
-        for (a in doc.select("a[href$=.htm]")) {
-            val href = a.attr("href")
+        val seen = mutableSetOf<String>()
+        // 结果卡片: a[href$=.htm] + img alt 提供标题; 同一条目常有缩略图/标题两个同链 a, 按 detailUrl 去重
+        for (a in doc.select("a[href]")) {
+            val href = a.attr("href").trim()
+            if (!detailLink.matches(href)) continue
+            val abs = if (href.startsWith("http")) href else baseUrl + href
+            if (!seen.add(abs)) continue
             val img = a.selectFirst("img")
             var title = a.attr("title")
             if (title.isBlank()) title = img?.attr("alt") ?: ""
@@ -48,7 +55,7 @@ class DygangAdapter(override val config: SiteConfig, private val engine: HttpEng
                 type = type,
                 quality = quality,
                 sourceSite = displayName,
-                detailUrl = if (href.startsWith("http")) href else baseUrl + href,
+                detailUrl = abs,
             )
         }
         out

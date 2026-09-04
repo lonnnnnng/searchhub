@@ -22,8 +22,7 @@ class SearchRepository(
     private var adapters: List<SiteAdapter> = emptyList()
 
     /** 根据配置重建适配器(保存站点配置后调用) */
-    fun rebuild(sites: List<SiteConfig>, proxy: ProxyConfig) {
-        engine.updateProxy(proxy.enabled, proxy.host, proxy.port)
+    fun rebuild(sites: List<SiteConfig>) {
         adapters = sites.filter { it.enabled }.map { cfg ->
             when (cfg.id) {
                 "btbtlb" -> BtbtlbAdapter(cfg, engine)

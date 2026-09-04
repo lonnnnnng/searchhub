@@ -5,7 +5,6 @@ import androidx.lifecycle.AndroidViewModel
 import com.searchhub.app.data.CaptchaFlow
 import com.searchhub.app.data.ConfigStore
 import com.searchhub.app.data.HttpEngine
-import com.searchhub.app.data.ProxyConfig
 import com.searchhub.app.data.SearchRepository
 import com.searchhub.app.data.SiteConfig
 import com.searchhub.app.model.CaptchaAnswer
@@ -37,9 +36,6 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     private val _sites = MutableStateFlow<List<SiteConfig>>(emptyList())
     val sites = _sites.asStateFlow()
 
-    private val _proxy = MutableStateFlow(ProxyConfig())
-    val proxy = _proxy.asStateFlow()
-
     init {
         loadConfig()
     }
@@ -51,24 +47,15 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun loadConfig() {
-        val (sites, proxy) = ConfigStore.load(getApplication())
+        val sites = ConfigStore.load(getApplication())
         _sites.value = sites
-        _proxy.value = proxy
-        repository.rebuild(sites, proxy)
+        repository.rebuild(sites)
     }
 
     fun saveSites(newSites: List<SiteConfig>) {
-        val proxy = ConfigStore.load(getApplication()).second
         _sites.value = newSites
-        ConfigStore.save(getApplication(), newSites, proxy)
-        repository.rebuild(newSites, proxy)
-    }
-
-    fun saveProxy(newProxy: ProxyConfig) {
-        val sites = ConfigStore.load(getApplication()).first
-        _proxy.value = newProxy
-        ConfigStore.save(getApplication(), sites, newProxy)
-        repository.rebuild(sites, newProxy)
+        ConfigStore.save(getApplication(), newSites)
+        repository.rebuild(newSites)
     }
 
     fun resetConfig() {

@@ -46,9 +46,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -112,9 +114,11 @@ fun DetailScreen(
                     )
                     DetailContent(
                         info = fixed,
+                        sourceUrl = url,
                         resolving = resolving,
                         onResolve = { idx, item -> if (item.url.isBlank() && item.fetchUrl.isNotBlank()) vm.resolveResource(item, idx) },
                         onCopy = { copyText(context, it) },
+                        onCopyCode = { copyText(context, it, "已复制提取码") },
                         onOpen = { openUrl(context, it) },
                     )
                 }
@@ -154,9 +158,11 @@ private fun DetailErrorState(message: String, onRetry: () -> Unit) {
 @Composable
 private fun DetailContent(
     info: DetailInfo,
+    sourceUrl: String,
     resolving: Set<Int>,
     onResolve: (Int, ResourceItem) -> Unit,
     onCopy: (String) -> Unit,
+    onCopyCode: (String) -> Unit,
     onOpen: (String) -> Unit,
 ) {
     LazyColumn(
@@ -188,14 +194,58 @@ private fun DetailContent(
                     Spacer(Modifier.width(5.dp))
                     Text(info.sourceSite.ifBlank { "公开索引" }, style = MaterialTheme.typography.labelMedium, color = TitaGreen)
                 }
+                // 溯源: 源站详情页地址, 点击复制, 右侧按钮浏览器打开
+                if (sourceUrl.isNotBlank()) {
+                    Spacer(Modifier.height(6.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth().clickable { onCopy(sourceUrl) },
+                    ) {
+                        Text(
+                            sourceUrl,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF999999),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Icon(Icons.Default.ContentCopy, contentDescription = "复制源地址", tint = Color(0xFFB0B0B0), modifier = Modifier.size(13.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Icon(
+                            Icons.AutoMirrored.Filled.OpenInNew,
+                            contentDescription = "浏览器打开源页",
+                            tint = TitaGreen,
+                            modifier = Modifier.size(15.dp).clickable { onOpen(sourceUrl) },
+                        )
+                    }
+                }
             }
             Box(Modifier.fillMaxWidth().padding(top = 14.dp).height(1.dp).background(Line))
         }
         item {
+            // 可用资源: 标题 + 总数, 下方一行资源类型汇总(磁力 x / 网盘 x / 种子 x)
             Row(Modifier.fillMaxWidth().padding(horizontal = 3.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("可用资源", style = MaterialTheme.typography.titleLarge, color = Color(0xFF232323))
-                    Text("${info.resources.size} 个来源，可按需复制或打开", style = MaterialTheme.typography.bodySmall, color = Color(0xFF888888))
+                Text("可用资源", style = MaterialTheme.typography.titleLarge, color = Color(0xFF232323))
+                Spacer(Modifier.weight(1f))
+                Text("共 ${info.resources.size} 个", style = MaterialTheme.typography.labelMedium, color = Color(0xFF888888))
+            }
+            val typeCounts = remember(info.resources) {
+                info.resources.groupingBy { typeLabel(it.type) }.eachCount().toList().sortedByDescending { it.second }
+            }
+            if (typeCounts.isNotEmpty()) {
+                Row(modifier = Modifier.padding(horizontal = 3.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    typeCounts.forEach { (label, n) ->
+                        Surface(color = Color(0xFFE8F7EF), shape = RoundedCornerShape(4.dp)) {
+                            Text(
+                                "$label $n",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = TitaGreen,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -209,6 +259,7 @@ private fun DetailContent(
                     onResolve = { onResolve(i, item) },
                     onCopy = { onCopy(item.url) },
                     onOpen = { onOpen(item.url) },
+                    onCopyCode = onCopyCode,
                 )
             }
         }
@@ -232,6 +283,7 @@ private fun ResourceCard(
     onResolve: () -> Unit,
     onCopy: () -> Unit,
     onOpen: () -> Unit,
+    onCopyCode: (String) -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
         // 第一行: 类型 + 标题 + 操作按钮
@@ -269,8 +321,31 @@ private fun ResourceCard(
                 else -> Text("需源站", style = MaterialTheme.typography.labelSmall, color = Color(0xFFB0B0B0))
             }
         }
+        // 第二行(仅网盘等带提取码时): 点击单独复制提取码
+        extractAccessCode(item.title)?.let { code ->
+            Spacer(Modifier.height(3.dp))
+            Surface(
+                color = Color(0xFFE8F7EF),
+                shape = RoundedCornerShape(4.dp),
+                modifier = Modifier.clickable { onCopyCode(code) },
+            ) {
+                Row(Modifier.padding(horizontal = 6.dp, vertical = 3.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("提取码 $code", style = MaterialTheme.typography.labelSmall, color = TitaGreen, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.width(3.dp))
+                    Icon(Icons.Default.ContentCopy, contentDescription = "复制提取码", tint = TitaGreen, modifier = Modifier.size(11.dp))
+                }
+            }
+        }
     }
     Box(Modifier.fillMaxWidth().height(1.dp).background(Line))
+}
+
+private val AccessCodeRegex = Regex("(?:提取码|提取碼|访问码|訪問碼|密碼|密码)\\s*[:：=]?\\s*([a-zA-Z0-9]{4,8})")
+
+/** 从资源标题中识别网盘提取码, 如 "百度网盘 提取码:4f8k" → "4f8k"; 无则返回 null */
+private fun extractAccessCode(title: String): String? {
+    val m = AccessCodeRegex.find(title) ?: return null
+    return m.groupValues[1]
 }
 
 private fun typeLabel(type: String): String = when (type) {
@@ -284,14 +359,14 @@ private fun typeLabel(type: String): String = when (type) {
     else -> type
 }
 
-private fun copyText(context: Context, text: String) {
+private fun copyText(context: Context, text: String, toast: String = "已复制链接") {
     if (text.isBlank()) {
         Toast.makeText(context, "无可用链接", Toast.LENGTH_SHORT).show()
         return
     }
     val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
     cm.setPrimaryClip(ClipData.newPlainText("link", text))
-    Toast.makeText(context, "已复制链接", Toast.LENGTH_SHORT).show()
+    Toast.makeText(context, toast, Toast.LENGTH_SHORT).show()
 }
 
 private fun openUrl(context: Context, url: String) {

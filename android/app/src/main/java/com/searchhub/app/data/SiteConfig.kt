@@ -93,11 +93,3 @@ object SiteDefaults {
         ),
     )
 }
-
-/** 全局网络代理配置(可选,默认关闭直连;若需翻墙访问某些站可开启并填 Clash 端口) */
-
-data class ProxyConfig(
-    val enabled: Boolean = false,
-    val host: String = "127.0.0.1",
-    val port: Int = 7890,
-)

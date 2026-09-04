@@ -8,14 +8,9 @@ import java.io.File
 object ConfigStore {
     private const val FILE = "config.json"
 
-    data class Persist(
-        val sites: List<SiteConfig>,
-        val proxy: ProxyConfig,
-    )
-
-    fun load(context: Context): Pair<List<SiteConfig>, ProxyConfig> {
+    fun load(context: Context): List<SiteConfig> {
         val f = File(context.filesDir, FILE)
-        if (!f.exists()) return SiteDefaults.DEFAULT_SITES to ProxyConfig()
+        if (!f.exists()) return SiteDefaults.DEFAULT_SITES
         return try {
             val root = JSONObject(f.readText())
             val arr = root.optJSONArray("sites") ?: JSONArray()
@@ -38,19 +33,13 @@ object ConfigStore {
             SiteDefaults.DEFAULT_SITES.forEach { def ->
                 if (def.id !in mergedIds) merged += def
             }
-            val p = root.optJSONObject("proxy") ?: JSONObject()
-            val proxy = ProxyConfig(
-                enabled = p.optBoolean("enabled", false),
-                host = p.optString("host", "127.0.0.1"),
-                port = p.optInt("port", 7890),
-            )
-            (if (merged.isEmpty()) SiteDefaults.DEFAULT_SITES else merged) to proxy
+            if (merged.isEmpty()) SiteDefaults.DEFAULT_SITES else merged
         } catch (e: Exception) {
-            SiteDefaults.DEFAULT_SITES to ProxyConfig()
+            SiteDefaults.DEFAULT_SITES
         }
     }
 
-    fun save(context: Context, sites: List<SiteConfig>, proxy: ProxyConfig) {
+    fun save(context: Context, sites: List<SiteConfig>) {
         val root = JSONObject()
         val arr = JSONArray()
         sites.forEach { s ->
@@ -60,9 +49,6 @@ object ConfigStore {
             })
         }
         root.put("sites", arr)
-        root.put("proxy", JSONObject().apply {
-            put("enabled", proxy.enabled); put("host", proxy.host); put("port", proxy.port)
-        })
         File(context.filesDir, FILE).writeText(root.toString())
     }
 
