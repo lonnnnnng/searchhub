@@ -1,5 +1,8 @@
 package com.searchhub.app.ui.search
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.searchhub.app.data.SearchRepository
@@ -82,6 +85,14 @@ class SearchViewModel(
 
     private val _ui = MutableStateFlow<SearchUiState>(SearchUiState.Idle)
     val ui: StateFlow<SearchUiState> = _ui.asStateFlow()
+
+    /** 当前选中的站点 tab("全部"或站点名); 存 VM 里跨详情往返/流式更新保持选中 */
+    var selectedTab by mutableStateOf("全部")
+        private set
+
+    fun selectTab(name: String) {
+        selectedTab = name
+    }
 
     private val _detail = MutableStateFlow<DetailUiState>(DetailUiState.Idle)
     val detail: StateFlow<DetailUiState> = _detail.asStateFlow()

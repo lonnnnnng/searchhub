@@ -46,7 +46,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -132,12 +131,14 @@ fun SearchScreen(
                 } else {
                     Column(Modifier.fillMaxSize()) {
                         LoadingProgressBar(state.done, state.total)
-                        SiteTabs(results = state.results, onDetail = onOpenDetail, showMore = false, onLoadMore = {})
+                        SiteTabs(results = state.results, selectedSite = vm.selectedTab, onSelectSite = vm::selectTab, onDetail = onOpenDetail, showMore = false, onLoadMore = {})
                     }
                 }
                 is SearchUiState.Error -> ErrorState(message = state.msg, onRetry = submit)
                 is SearchUiState.Loaded -> SiteTabs(
                     results = state.results,
+                    selectedSite = vm.selectedTab,
+                    onSelectSite = vm::selectTab,
                     onDetail = onOpenDetail,
                     showMore = state.results.isNotEmpty() && state.results.size % 20 == 0,
                     onLoadMore = { vm.loadMore(state.page + 1, state.kw) },
@@ -300,14 +301,16 @@ private fun LoadingProgressBar(done: Int, total: Int) {
 @Composable
 private fun SiteTabs(
     results: List<SearchResult>,
+    selectedSite: String,
+    onSelectSite: (String) -> Unit,
     onDetail: (SearchResult) -> Unit,
     showMore: Boolean,
     onLoadMore: () -> Unit,
 ) {
     val bySite = remember(results) { results.groupBy { it.sourceSite } }
     val sites = remember(bySite) { listOf("全部") + bySite.keys.toList() }
-    var selected by remember(sites) { mutableIntStateOf(0) }
-    if (selected >= sites.size) selected = 0
+    // 选中态来自 VM(站点名), 站点列表变化(流式追加/加载更多)时不重置; 找不到则回退"全部"
+    val selected = sites.indexOf(selectedSite).let { if (it >= 0) it else 0 }
     Column(Modifier.fillMaxSize()) {
         // 清爽风格: 横向滚动文字 tab, 选中绿色加粗 + 底部 2dp 绿条
         Surface(Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
@@ -316,11 +319,11 @@ private fun SiteTabs(
                     val count = if (index == 0) results.size else bySite[name]?.size ?: 0
                     val isSel = selected == index
                     Column(
-                        Modifier.padding(horizontal = 10.dp, vertical = 8.dp).clickable { selected = index },
+                        Modifier.padding(horizontal = 10.dp, vertical = 8.dp).clickable { onSelectSite(name) },
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            if (index == 0) "全部  $count" else "$name  $count",
+                            if (index == 0) "全部($count)" else "$name($count)",
                             color = if (isSel) TitaGreen else MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = if (isSel) 15.sp else 14.sp,
                             fontWeight = if (isSel) FontWeight.Bold else FontWeight.Normal,
