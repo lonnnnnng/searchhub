@@ -35,6 +35,8 @@ class SearchRepository(
                 "dytt8899" -> Dytt8899Adapter(cfg, engine)
                 "451024" -> Seven451024Adapter(cfg, engine)
                 "showpaw" -> ShowpawAdapter(cfg, engine)
+                "4kzn" -> FourKznAdapter(cfg, engine)
+                "uump4" -> Uump4Adapter(cfg, engine)
                 "btdx8" -> Btdx8Adapter(cfg, engine)
                 "xb6v" -> Xb6vAdapter(cfg, engine)
                 else -> BtbtlbAdapter(cfg, engine)

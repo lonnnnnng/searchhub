@@ -85,5 +85,17 @@ object SiteDefaults {
             searchPath = "/e/search/11index.php",
             matchUrl = "/",
         ),
+        SiteConfig(
+            id = "4kzn", name = "4K指南",
+            baseUrl = "https://4kzn.cc",
+            searchPath = "/?post_type=book&s=\${kw}",
+            matchUrl = "/book/",
+        ),
+        SiteConfig(
+            id = "uump4", name = "悠悠MP4",
+            baseUrl = "https://www.uump4.cc",
+            searchPath = "/search.htm?keyword=\${kw}",
+            matchUrl = "/thread-",
+        ),
     )
 }
