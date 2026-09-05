@@ -34,12 +34,15 @@ class Xb6vAdapter(override val config: SiteConfig, private val engine: HttpEngin
         val html = try { engine.postText("$baseUrl/e/search/11index.php", body, referer = "$baseUrl/") } catch (e: Exception) { return@withContext emptyList() }
         val doc = Jsoup.parse(html)
         val out = mutableListOf<SearchResult>()
-        for (a in doc.select("a[href*=.html]")) {
+        val seen = mutableSetOf<String>()
+        // 只取结果区(#post_container)条目卡片 a.zoom(带 title 的缩略图链接);
+        // 全页扫 a[href*=.html] 会把侧栏"最新50部/热门推荐"等无关条目混进来
+        for (a in doc.select("#post_container a.zoom")) {
             val href = a.attr("href")
-            val title = a.text().trim()
+            // 站点搜词高亮会把 <font color=red> 带进 title 属性, 剥离 HTML 标签
+            val title = Jsoup.parse(a.attr("title").ifBlank { a.text() }).text().trim()
             if (title.isBlank() || title.length < 6) continue
-            // 过滤栏目导航链接
-            if (!Regex("(19\\d{2}|20\\d{2})").containsMatchIn(title) && title.startsWith("首页")) continue
+            if (!seen.add(href)) continue
             val year = Regex("(19\\d{2}|20\\d{2})").find(title)?.groupValues?.get(1) ?: ""
             val quality = Regex("(4K|1080P|1080p|720P|720p|蓝光|HD|BD)", RegexOption.IGNORE_CASE).find(title)?.groupValues?.get(1) ?: ""
             val type = Regex("(电影|电视剧|动漫|综艺|纪录片)").find(title)?.groupValues?.get(1) ?: ""
