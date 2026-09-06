@@ -11,8 +11,8 @@ android {
         applicationId = "com.searchhub.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 21
-        versionName = "1.8.7"
+        versionCode = 22
+        versionName = "1.8.8"
     }
 
     val releaseStoreFile = providers.gradleProperty("searchhubReleaseStoreFile")

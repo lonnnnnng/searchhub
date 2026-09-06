@@ -19,22 +19,18 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material.icons.filled.Tune
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -292,7 +288,7 @@ private fun formatSize(bytes: Long): String = when {
     else -> "0B"
 }
 
-/** 站点来源二级页: 站点域名编辑 + 启停 */
+/** 站点来源二级页: 站点域名编辑 + 启停; 动作按钮在标题右侧 */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SitesScreen(
@@ -302,11 +298,11 @@ fun SitesScreen(
     val sites by model.sites.collectAsStateWithLifecycle()
 
     var draft by remember(sites) { mutableStateOf(sites.map { it.copy() }) }
-    var saved by remember { mutableStateOf(false) }
+    var dirty by remember { mutableStateOf(false) }
 
     fun apply() {
         model.saveSites(draft)
-        saved = true
+        dirty = false
     }
 
     Scaffold(
@@ -319,65 +315,69 @@ fun SitesScreen(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "保存并返回")
                     }
                 },
+                actions = {
+                    Text(
+                        "恢复默认",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .clickable {
+                                draft = SiteDefaults.DEFAULT_SITES.map { it.copy() }
+                                dirty = true
+                            }
+                            .padding(horizontal = 8.dp, vertical = 6.dp),
+                    )
+                    Text(
+                        "保存",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = Color.White,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                            .background(TitaGreen, RoundedCornerShape(14.dp))
+                            .clickable { apply(); onBack() }
+                            .padding(horizontal = 14.dp, vertical = 6.dp),
+                    )
+                    Spacer(Modifier.width(10.dp))
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             )
-        },
-        bottomBar = {
-            Surface(color = MaterialTheme.colorScheme.surface, tonalElevation = 3.dp, border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)) {
-                Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    if (saved) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("设置已保存", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
-                    } else {
-                        Text("修改会在保存后生效", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    Spacer(Modifier.weight(1f))
-                    OutlinedButton(onClick = {
-                        draft = SiteDefaults.DEFAULT_SITES.map { it.copy() }
-                        saved = false
-                    }) { Text("恢复默认") }
-                    Spacer(Modifier.width(5.dp))
-                    Button(
-                        onClick = { apply(); onBack() },
-                        colors = ButtonDefaults.buttonColors(containerColor = TitaGreen),
-                        shape = RoundedCornerShape(20.dp),
-                    ) { Text("保存") }
-                }
-            }
         },
     ) { pad ->
         Column(
             Modifier.padding(pad).imePadding().fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 12.dp, vertical = 2.dp),
         ) {
-            SectionHeader(title = "站点来源", trailing = "已启用 ${draft.count { it.enabled }} / ${draft.size}")
+            SectionHeader(
+                title = "站点来源",
+                trailing = if (dirty) "未保存" else "已启用 ${draft.count { it.enabled }} / ${draft.size}",
+                trailingIsAlert = dirty,
+            )
             draft.forEachIndexed { idx, site ->
                 SiteRow(
                     position = idx + 1,
                     site = site,
                     isLast = idx == draft.lastIndex,
                     onEnabled = { enabled ->
-                        saved = false
+                        dirty = true
                         draft = draft.toMutableList().also { it[idx] = it[idx].copy(enabled = enabled) }
                     },
                     onBaseUrl = { value ->
-                        saved = false
+                        dirty = true
                         draft = draft.toMutableList().also { it[idx] = it[idx].copy(baseUrl = value) }
                     },
                 )
             }
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(16.dp))
         }
     }
 }
 
 @Composable
-private fun SectionHeader(title: String, trailing: String = "") {
+private fun SectionHeader(title: String, trailing: String = "", trailingIsAlert: Boolean = false) {
     Row(Modifier.fillMaxWidth().padding(start = 4.dp, top = 10.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
         Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
         Spacer(Modifier.width(6.dp))
         if (trailing.isNotBlank()) {
-            Text(trailing, style = MaterialTheme.typography.labelMedium, color = TitaGreen)
+            Text(trailing, style = MaterialTheme.typography.labelMedium, color = if (trailingIsAlert) MaterialTheme.colorScheme.error else TitaGreen)
         }
     }
 }
