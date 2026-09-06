@@ -97,5 +97,11 @@ object SiteDefaults {
             searchPath = "/search.htm?keyword=\${kw}",
             matchUrl = "/thread-",
         ),
+        SiteConfig(
+            id = "cilixiong", name = "磁力熊",
+            baseUrl = "https://www.cilixiong.xyz",
+            searchPath = "/e/search/index.php",
+            matchUrl = "/",
+        ),
     )
 }

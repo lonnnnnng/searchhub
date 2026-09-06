@@ -37,6 +37,7 @@ class SearchRepository(
                 "showpaw" -> ShowpawAdapter(cfg, engine)
                 "4kzn" -> FourKznAdapter(cfg, engine)
                 "uump4" -> Uump4Adapter(cfg, engine)
+                "cilixiong" -> CilixiongAdapter(cfg, engine)
                 "btdx8" -> Btdx8Adapter(cfg, engine)
                 "xb6v" -> Xb6vAdapter(cfg, engine)
                 else -> BtbtlbAdapter(cfg, engine)
