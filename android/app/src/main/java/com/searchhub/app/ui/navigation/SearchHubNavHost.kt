@@ -10,10 +10,12 @@ import com.searchhub.app.ui.AppViewModel
 import com.searchhub.app.ui.search.DetailScreen
 import com.searchhub.app.ui.search.SearchScreen
 import com.searchhub.app.ui.settings.SettingsScreen
+import com.searchhub.app.ui.settings.SitesScreen
 
 object Routes {
     const val SEARCH = "search"
     const val SETTINGS = "settings"
+    const val SETTINGS_SITES = "settings/sites"
     const val DETAIL = "detail"
 }
 
@@ -38,7 +40,14 @@ fun SearchHubNavHost(
             DetailScreen(url = url, site = site, model = model, onBack = { navHostController.popBackStack() })
         }
         composable(Routes.SETTINGS) {
-            SettingsScreen(model = model, onBack = { navHostController.popBackStack() })
+            SettingsScreen(
+                model = model,
+                onBack = { navHostController.popBackStack() },
+                onOpenSites = { navHostController.navigate(Routes.SETTINGS_SITES) },
+            )
+        }
+        composable(Routes.SETTINGS_SITES) {
+            SitesScreen(model = model, onBack = { navHostController.popBackStack() })
         }
     }
 }
